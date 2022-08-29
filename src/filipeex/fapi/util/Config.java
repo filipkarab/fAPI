@@ -6,6 +6,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class Config {
 
@@ -16,25 +17,42 @@ public class Config {
     // ██████╔╝███████╗░░░██║░░░░░░██║░░░██║██║░╚███║╚██████╔╝██████╔╝
     // ╚═════╝░╚══════╝░░░╚═╝░░░░░░╚═╝░░░╚═╝╚═╝░░╚══╝░╚═════╝░╚═════╝░
 
-    private static File settingsFile;
-    private static FileConfiguration settings;
+    private static HashMap<File, FileConfiguration> configurations = new HashMap<File, FileConfiguration>();
 
-    public static FileConfiguration getSettings() {
-        return settings;
+    public static FileConfiguration getConfig(String file) {
+        return configurations.get(new File(FAPI.i.getDataFolder(), file));
     }
 
-    public static boolean createSettings() {
+    public static boolean createConfig(String file) {
         boolean success = true;
 
-        settingsFile = new File(FAPI.i.getDataFolder(), "settings.yml");
-        if (!settingsFile.exists()) {
-            settingsFile.getParentFile().mkdirs();
-            FAPI.i.saveResource("settings.yml", false);
+        File configFile = new File(FAPI.i.getDataFolder(), file);
+        if (!configFile.exists()) {
+            configFile.getParentFile().mkdirs();
+            FAPI.i.saveResource(file, false);
         }
 
-        settings = new YamlConfiguration();
+        FileConfiguration config = new YamlConfiguration();
         try {
-            settings.load(settingsFile);
+            config.load(configFile);
+        } catch (Exception ex) {
+            success = false;
+            Output.err(ex.getMessage());
+        }
+
+        configurations.put(configFile, config);
+
+        return success;
+    }
+
+    public static boolean reloadConfig(String file) {
+        boolean success = true;
+
+        File configFile = new File(FAPI.i.getDataFolder(), file);
+        FileConfiguration config = configurations.get(configFile);
+
+        try {
+            config.load(configFile);
         } catch (Exception ex) {
             success = false;
             Output.err(ex.getMessage());
@@ -43,24 +61,14 @@ public class Config {
         return success;
     }
 
-    public static boolean reloadSettings() {
+    public static boolean saveConfig(String file) {
         boolean success = true;
 
-        try {
-            settings.load(settingsFile);
-        } catch (Exception ex) {
-            success = false;
-            Output.err(ex.getMessage());
-        }
-
-        return success;
-    }
-
-    public static boolean saveSettings() {
-        boolean success = true;
+        File configFile = new File(FAPI.i.getDataFolder(), file);
+        FileConfiguration config = configurations.get(configFile);
 
         try {
-            settings.save(settingsFile);
+            config.save(configFile);
         } catch (IOException ex) {
             success = false;
             Output.err(ex.getMessage());
@@ -69,26 +77,32 @@ public class Config {
         return success;
     }
 
-    public static boolean unloadSettings() {
+    public static boolean unloadConfig(String file) {
         boolean success = false;
 
-        settings = new YamlConfiguration();
+        File configFile = new File(FAPI.i.getDataFolder(), file);
+        FileConfiguration config = configurations.get(configFile);
+
+        config = new YamlConfiguration();
 
         return success;
     }
 
-    public static boolean resetSettings() {
+    public static boolean resetConfig(String file) {
         boolean success = true;
 
-        unloadSettings();
+        File configFile = new File(FAPI.i.getDataFolder(), file);
+        FileConfiguration config = configurations.get(configFile);
 
-        settingsFile = new File(FAPI.i.getDataFolder(), "settings.yml");
-        settingsFile.getParentFile().mkdirs();
-        FAPI.i.saveResource("settings.yml", true);
+        unloadConfig(file);
 
-        settings = new YamlConfiguration();
+        configFile = new File(FAPI.i.getDataFolder(), file);
+        configFile.getParentFile().mkdirs();
+        FAPI.i.saveResource(file, true);
+
+        config = new YamlConfiguration();
         try {
-            settings.load(settingsFile);
+            config.load(configFile);
         } catch (Exception ex) {
             success = false;
             Output.err(ex.getMessage());
@@ -105,25 +119,47 @@ public class Config {
     // ██████╔╝██║░░██║░░░██║░░░██║░░██║██████╦╝██║░░██║██████╔╝███████╗
     // ╚═════╝░╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░╚═╝╚═════╝░╚═╝░░╚═╝╚═════╝░╚══════╝
 
-    private static File dataFile;
-    private static FileConfiguration data;
+    private static HashMap<File, FileConfiguration> databases = new HashMap<File, FileConfiguration>();
 
-    public static FileConfiguration getData() {
-        return data;
+    public static FileConfiguration getDatabase(String file) {
+        reloadDatabase(file);
+        return databases.get(new File("plugins/fDATABASE/" + file));
     }
 
-    public static boolean createData() {
+    public static boolean createDatabase(String file) {
         boolean success = true;
 
-        dataFile = new File(FAPI.i.getDataFolder(), "data.yml");
-        if (!dataFile.exists()) {
-            dataFile.getParentFile().mkdirs();
-            FAPI.i.saveResource("data.yml", false);
+        File configFile = new File("plugins/fDATABASE/" + file);
+        if (!configFile.exists()) {
+            configFile.getParentFile().mkdirs();
+            try {
+                new YamlConfiguration().save(configFile);
+            } catch (IOException e) {
+                Output.err("An error occurred while trying to create the database file; " + e.getMessage());
+            }
         }
 
-        data = new YamlConfiguration();
+        FileConfiguration config = new YamlConfiguration();
         try {
-            data.load(dataFile);
+            config.load(configFile);
+        } catch (Exception ex) {
+            success = false;
+            Output.err(ex.getMessage());
+        }
+
+        databases.put(configFile, config);
+
+        return success;
+    }
+
+    public static boolean reloadDatabase(String file) {
+        boolean success = true;
+
+        File configFile = new File("plugins/fDATABASE/" + file);
+        FileConfiguration config = databases.get(configFile);
+
+        try {
+            config.load(configFile);
         } catch (Exception ex) {
             success = false;
             Output.err(ex.getMessage());
@@ -132,24 +168,14 @@ public class Config {
         return success;
     }
 
-    public static boolean reloadData() {
+    public static boolean saveDatabase(String file) {
         boolean success = true;
 
-        try {
-            data.load(dataFile);
-        } catch (Exception ex) {
-            success = false;
-            Output.err(ex.getMessage());
-        }
-
-        return success;
-    }
-
-    public static boolean saveData() {
-        boolean success = true;
+        File configFile = new File("plugins/fDATABASE/" + file);
+        FileConfiguration config = databases.get(configFile);
 
         try {
-            data.save(dataFile);
+            config.save(configFile);
         } catch (IOException ex) {
             success = false;
             Output.err(ex.getMessage());
@@ -158,119 +184,13 @@ public class Config {
         return success;
     }
 
-    public static boolean unloadData() {
+    public static boolean unloadDatabase(String file) {
         boolean success = false;
 
-        data = new YamlConfiguration();
+        File configFile = new File("plugins/fDATABASE/" + file);
+        FileConfiguration config = databases.get(configFile);
 
-        return success;
-    }
-
-    public static boolean resetData() {
-        boolean success = true;
-
-        unloadData();
-
-        dataFile = new File(FAPI.i.getDataFolder(), "data.yml");
-        dataFile.getParentFile().mkdirs();
-        FAPI.i.saveResource("data.yml", true);
-
-        data = new YamlConfiguration();
-        try {
-            data.load(dataFile);
-        } catch (Exception ex) {
-            success = false;
-            Output.err(ex.getMessage());
-        }
-
-        return success;
-    }
-
-
-    // ███╗░░░███╗███████╗░██████╗░██████╗░█████╗░░██████╗░███████╗░██████╗
-    // ████╗░████║██╔════╝██╔════╝██╔════╝██╔══██╗██╔════╝░██╔════╝██╔════╝
-    // ██╔████╔██║█████╗░░╚█████╗░╚█████╗░███████║██║░░██╗░█████╗░░╚█████╗░
-    // ██║╚██╔╝██║██╔══╝░░░╚═══██╗░╚═══██╗██╔══██║██║░░╚██╗██╔══╝░░░╚═══██╗
-    // ██║░╚═╝░██║███████╗██████╔╝██████╔╝██║░░██║╚██████╔╝███████╗██████╔╝
-    // ╚═╝░░░░░╚═╝╚══════╝╚═════╝░╚═════╝░╚═╝░░╚═╝░╚═════╝░╚══════╝╚═════╝░
-
-    private static File messagesFile;
-    private static FileConfiguration messages;
-
-    public static FileConfiguration getMessages() {
-        return messages;
-    }
-
-    public static boolean createMessages() {
-        boolean success = true;
-
-        messagesFile = new File(FAPI.i.getDataFolder(), "messages.yml");
-        if (!messagesFile.exists()) {
-            messagesFile.getParentFile().mkdirs();
-            FAPI.i.saveResource("messages.yml", false);
-        }
-
-        messages = new YamlConfiguration();
-        try {
-            messages.load(messagesFile);
-        } catch (Exception ex) {
-            success = false;
-            Output.err(ex.getMessage());
-        }
-
-        return success;
-    }
-
-    public static boolean reloadMessages() {
-        boolean success = true;
-
-        try {
-            messages.load(messagesFile);
-        } catch (Exception ex) {
-            success = false;
-            Output.err(ex.getMessage());
-        }
-
-        return success;
-    }
-
-    public static boolean saveMessages() {
-        boolean success = true;
-
-        try {
-            messages.save(messagesFile);
-        } catch (IOException ex) {
-            success = false;
-            Output.err(ex.getMessage());
-        }
-
-        return success;
-    }
-
-    public static boolean unloadMessages() {
-        boolean success = false;
-
-        messages = new YamlConfiguration();
-
-        return success;
-    }
-
-    public static boolean resetMessages() {
-        boolean success = true;
-
-        unloadMessages();
-
-        messagesFile = new File(FAPI.i.getDataFolder(), "messages.yml");
-        messagesFile.getParentFile().mkdirs();
-        FAPI.i.saveResource("messages.yml", true);
-
-        messages = new YamlConfiguration();
-        try {
-            messages.load(messagesFile);
-        } catch (Exception ex) {
-            success = false;
-            Output.err(ex.getMessage());
-        }
+        config = new YamlConfiguration();
 
         return success;
     }

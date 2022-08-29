@@ -20,7 +20,7 @@ public class UpdateChecker {
                 consumer.accept(scanner.next());
             }
         } catch (IOException exception) {
-            FAPI.i.getLogger().info("An error occurred while checking the plugin version. Unable to check for updates: " + exception.getMessage());
+            Output.err("An error occurred while checking the plugin version. Unable to check for updates; " + exception.getMessage());
         }
 
     }

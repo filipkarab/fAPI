@@ -1,6 +1,7 @@
 package filipeex.fapi.util;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -12,6 +13,16 @@ public class PlayerUtil {
 
         for (Player p : Bukkit.getOnlinePlayers())
             if (p.getDisplayName().equalsIgnoreCase(nick))
+                result = true;
+
+        return result;
+    }
+
+    public static boolean isOffline(String nick) {
+        boolean result = false;
+
+        for (OfflinePlayer p : Bukkit.getOfflinePlayers())
+            if (p.getName().equalsIgnoreCase(nick))
                 result = true;
 
         return result;

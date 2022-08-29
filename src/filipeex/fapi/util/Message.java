@@ -11,10 +11,10 @@ public class Message {
 
     public static void send(Player p, String msg) {
 
-        String rawMessageFromFile = Config.getMessages().getString(msg);
+        String rawMessageFromFile = Config.getConfig("messages.yml").getString(msg);
         String rawMessageFromFileReplaced = rawMessageFromFile
                 .replace("%player%", p.getDisplayName())
-                .replace("%prefix%", Config.getMessages().getString("prefix"));
+                .replace("%prefix%", Config.getConfig("messages.yml").getString("prefix"));
         String finalMessage = Chat.color(rawMessageFromFileReplaced);
 
         p.sendMessage(finalMessage);
@@ -23,10 +23,10 @@ public class Message {
 
     public static void send(Player p, String msg, ReplacementSet rSet) {
 
-        String rawMessageFromFile = Config.getMessages().getString(msg);
+        String rawMessageFromFile = Config.getConfig("messages.yml").getString(msg);
         String rawMessageFromFileReplaced = rawMessageFromFile
                 .replace("%player%", p.getDisplayName())
-                .replace("%prefix%", Config.getMessages().getString("prefix"));
+                .replace("%prefix%", Config.getConfig("messages.yml").getString("prefix"));
         String rawMesageEverythingReplaced = replaceEverything(rawMessageFromFileReplaced, rSet);
         String finalMessage = Chat.color(rawMesageEverythingReplaced);
 
@@ -36,9 +36,9 @@ public class Message {
 
     public static void send(CommandSender sender, String msg) {
 
-        String rawMessageFromFile = Config.getMessages().getString(msg);
+        String rawMessageFromFile = Config.getConfig("messages.yml").getString(msg);
         String rawMessageFromFileReplaced = rawMessageFromFile
-                .replace("%prefix%", Config.getMessages().getString("prefix"));
+                .replace("%prefix%", Config.getConfig("messages.yml").getString("prefix"));
         String finalMessage = Chat.color(rawMessageFromFileReplaced);
 
         sender.sendMessage(finalMessage);
@@ -47,9 +47,9 @@ public class Message {
 
     public static void send(CommandSender sender, String msg, ReplacementSet rSet) {
 
-        String rawMessageFromFile = Config.getMessages().getString(msg);
+        String rawMessageFromFile = Config.getConfig("messages.yml").getString(msg);
         String rawMessageFromFileReplaced = rawMessageFromFile
-                .replace("%prefix%", Config.getMessages().getString("prefix"));
+                .replace("%prefix%", Config.getConfig("messages.yml").getString("prefix"));
         String rawMessageEverythingReplaced = replaceEverything(rawMessageFromFileReplaced, rSet);
         String finalMessage = Chat.color(rawMessageEverythingReplaced);
 
